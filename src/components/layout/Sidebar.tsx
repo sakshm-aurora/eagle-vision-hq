@@ -7,6 +7,16 @@ import {
   DollarSign, 
   FileText, 
   Settings,
+  Bell,
+  MapPin,
+  ClipboardList,
+  Users,
+  Calendar,
+  Layers,
+  GitMerge,
+  CheckCircle,
+  GitBranch,
+  User,
   ChevronLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,6 +32,61 @@ const menuItems = [
     path: '/', 
     icon: LayoutDashboard,
     exact: true 
+  },
+  {
+    title: 'Map',
+    path: '/map',
+    icon: MapPin,
+  },
+  {
+    title: 'Alerts',
+    path: '/alerts',
+    icon: Bell,
+  },
+  {
+    title: 'Purchase Orders',
+    path: '/purchase-orders',
+    icon: ClipboardList,
+  },
+  {
+    title: 'Vendors',
+    path: '/vendors',
+    icon: Users,
+  },
+  {
+    title: 'Resources',
+    path: '/resources',
+    icon: Calendar,
+  },
+  {
+    title: 'BOM',
+    path: '/bom',
+    icon: Layers,
+  },
+  {
+    title: 'Changes',
+    path: '/changes',
+    icon: GitMerge,
+  },
+  {
+    title: 'QA Logs',
+    path: '/qa-logs',
+    icon: CheckCircle,
+  },
+  {
+    title: 'Dependencies',
+    path: '/dependencies',
+    icon: GitBranch,
+  },
+  {
+    title: 'Timeline',
+    path: '/timeline',
+    icon: Calendar,
+  },
+  {
+    title: 'Kanban',
+    path: '/kanban',
+    icon: Layers,
   },
   { 
     title: 'Batches', 
