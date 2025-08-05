@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, AlertTriangle, Info, CheckCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -64,6 +64,11 @@ const getNotificationColor = (type: string, severity: string) => {
 };
 
 export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ open, onClose }) => {
+  // Local state to manage filtering of notifications. Users can toggle between
+  // showing all notifications, only unread notifications, or only critical
+  // (high severity) alerts. This improves focus and reduces noise when
+  // reviewing a large number of notifications.
+  const [filter, setFilter] = useState<'all' | 'unread' | 'critical'>('all');
   if (!open) return null;
 
   return (
@@ -100,43 +105,85 @@ export const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ open, on
 
           <TabsContent value="all" className="mt-0 h-full">
             <ScrollArea className="h-[calc(100vh-8rem)]">
-              <div className="space-y-2 p-4">
-                {mockNotifications.map((notification) => {
-                  const Icon = getNotificationIcon(notification.type, notification.severity);
-                  const iconColor = getNotificationColor(notification.type, notification.severity);
+              <div className="p-4 space-y-2">
+                {/* Filter controls */}
+                <div className="flex gap-2 mb-2">
+                  <Button
+                    variant={filter === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('all')}
+                  >
+                    All
+                  </Button>
+                  <Button
+                    variant={filter === 'unread' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('unread')}
+                  >
+                    Unread
+                  </Button>
+                  <Button
+                    variant={filter === 'critical' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter('critical')}
+                  >
+                    Critical
+                  </Button>
+                </div>
 
-                  return (
-                    <div
-                      key={notification.id}
-                      className={cn(
-                        "p-3 rounded-lg border transition-colors cursor-pointer hover:bg-secondary",
-                        !notification.read && "bg-primary/5 border-primary/20"
-                      )}
-                    >
-                      <div className="flex items-start gap-3">
-                        <Icon className={cn("h-4 w-4 mt-0.5 shrink-0", iconColor)} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground">
-                            {notification.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {notification.message}
-                          </p>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs text-muted-foreground">
-                              {notification.timestamp}
-                            </span>
-                            {!notification.read && (
-                              <Button variant="ghost" size="sm" className="text-xs h-6">
-                                Mark as read
-                              </Button>
-                            )}
+                {mockNotifications
+                  .filter((notification) => {
+                    if (filter === 'unread') {
+                      return !notification.read;
+                    }
+                    if (filter === 'critical') {
+                      return notification.severity === 'high';
+                    }
+                    return true;
+                  })
+                  .map((notification) => {
+                    const Icon = getNotificationIcon(notification.type, notification.severity);
+                    const iconColor = getNotificationColor(notification.type, notification.severity);
+                    return (
+                      <div
+                        key={notification.id}
+                        className={cn(
+                          'p-3 rounded-lg border transition-colors hover:bg-secondary',
+                          !notification.read && 'bg-primary/5 border-primary/20'
+                        )}
+                      >
+                        <div className="flex items-start gap-3">
+                          <Icon className={cn('h-4 w-4 mt-0.5 shrink-0', iconColor)} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">
+                              {notification.title}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {notification.message}
+                            </p>
+                            <div className="flex flex-wrap items-center justify-between mt-2 gap-2">
+                              <span className="text-xs text-muted-foreground">
+                                {notification.timestamp}
+                              </span>
+                              <div className="flex gap-1">
+                                {!notification.read && (
+                                  <Button variant="ghost" size="sm" className="text-xs h-6">
+                                    Mark as read
+                                  </Button>
+                                )}
+                                <Button variant="ghost" size="sm" className="text-xs h-6">
+                                  Snooze
+                                </Button>
+                                <Button variant="ghost" size="sm" className="text-xs h-6">
+                                  Assign
+                                </Button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </ScrollArea>
           </TabsContent>

@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Users } from 'lucide-react';
 
 // Initial vendor list. Vendors may be added or removed. This structure
 // includes basic contact details that can be extended as needed.
@@ -47,6 +48,11 @@ const Vendors: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ name: '', contact: '', phone: '', address: '' });
 
+  // Reactive count of suppliers for summary display. This updates automatically
+  // whenever a vendor is added or removed, providing a quick overview of how
+  // many suppliers are currently managed.
+  const totalVendors = vendors.length;
+
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -68,6 +74,24 @@ const Vendors: React.FC = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Vendors</h1>
         <Button onClick={() => setModalOpen(true)}>Add Vendor</Button>
+      </div>
+
+      {/* Vendor metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Vendors
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">
+              {totalVendors}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Active suppliers</p>
+          </CardContent>
+        </Card>
       </div>
       <Card>
         <CardHeader>

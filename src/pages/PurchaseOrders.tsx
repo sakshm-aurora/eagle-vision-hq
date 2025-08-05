@@ -17,6 +17,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ClipboardList, Clock, CheckCircle, DollarSign } from 'lucide-react';
+
+// Compute summary statistics for purchase orders to display at the top of the page.
+// These derive from the current list of purchase orders (pos state) and help
+// provide a quick overview of workload and spend at a glance. They mirror
+// the dashboard’s card style for consistency across pages.
 
 // Initial mock data for purchase orders. Each PO has an ID and some basic
 // metadata. In a complete system this would be loaded from the server.
@@ -64,11 +70,84 @@ const PurchaseOrders: React.FC = () => {
     setModalOpen(false);
   };
 
+  // Derived metrics for KPIs shown at the top of the page. Because these
+  // derive from the reactive state `pos`, they update whenever orders are
+  // created. Having high level metrics improves scannability and aligns
+  // this page with the visual language of the dashboard.
+  const totalOrders = pos.length;
+  const pendingOrders = pos.filter((po) => po.status === 'pending').length;
+  const approvedOrders = pos.filter((po) => po.status === 'approved').length;
+  const totalSpend = pos.reduce((acc, po) => acc + po.total, 0);
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Purchase Orders</h1>
         <Button onClick={() => setModalOpen(true)}>Create PO</Button>
+      </div>
+
+      {/* Purchase order metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Orders
+            </CardTitle>
+            <ClipboardList className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">
+              {totalOrders}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">All purchase orders</p>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Pending
+            </CardTitle>
+            <Clock className="h-4 w-4 text-warning" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-warning">
+              {pendingOrders}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalOrders > 0 ? Math.round((pendingOrders / totalOrders) * 100) : 0}% pending
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Approved
+            </CardTitle>
+            <CheckCircle className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">
+              {approvedOrders}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalOrders > 0 ? Math.round((approvedOrders / totalOrders) * 100) : 0}% approved
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Spend
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-primary">
+              ₹{totalSpend.toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Combined order value</p>
+          </CardContent>
+        </Card>
       </div>
       <Card>
         <CardHeader>

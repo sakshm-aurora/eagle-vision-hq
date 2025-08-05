@@ -7,7 +7,6 @@ import {
   DollarSign, 
   FileText, 
   Settings,
-  Bell,
   MapPin,
   ClipboardList,
   Users,
@@ -37,11 +36,6 @@ const menuItems = [
     title: 'Map',
     path: '/map',
     icon: MapPin,
-  },
-  {
-    title: 'Alerts',
-    path: '/alerts',
-    icon: Bell,
   },
   {
     title: 'Purchase Orders',

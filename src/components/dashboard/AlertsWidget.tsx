@@ -108,7 +108,16 @@ export const AlertsWidget = () => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <span>Recent Alerts</span>
-          <Button variant="ghost" size="sm" className="text-xs">
+          {/* Link to the full alerts page. Removing the Alerts entry from the
+              sidebar makes this button the primary way to view all alerts. */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs"
+            onClick={() => {
+              window.location.href = '/alerts';
+            }}
+          >
             View All
             <ArrowRight className="h-3 w-3 ml-1" />
           </Button>

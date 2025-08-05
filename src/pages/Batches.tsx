@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2, Package, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -67,6 +67,16 @@ const mockBatches: Batch[] = [
   },
 ];
 
+// Derive summary statistics for display at the top of the page. These values
+// are calculated from the mockBatches array so they automatically update
+// whenever the underlying data changes. Showing high‑level metrics helps
+// convey important information at a glance and mirrors the dashboard’s
+// visual language.
+const totalBatches = mockBatches.length;
+const onTimeCount = mockBatches.filter((b) => b.status === 'on-time').length;
+const delayedCount = mockBatches.filter((b) => b.status === 'delayed').length;
+const completedCount = mockBatches.filter((b) => b.status === 'completed').length;
+
 const getPhaseColor = (phase: string) => {
   switch (phase) {
     case 'sourcing': return 'bg-batch-sourcing text-white';
@@ -127,6 +137,74 @@ const Batches = () => {
           <Plus className="h-4 w-4 mr-2" />
           New Batch
         </Button>
+      </div>
+
+      {/* High level batch metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Batches
+            </CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">
+              {totalBatches}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Across all statuses
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              On Time
+            </CardTitle>
+            <Clock className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">
+              {onTimeCount}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalBatches > 0 ? Math.round((onTimeCount / totalBatches) * 100) : 0}% on schedule
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Delayed
+            </CardTitle>
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-destructive">
+              {delayedCount}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalBatches > 0 ? Math.round((delayedCount / totalBatches) * 100) : 0}% delayed
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Completed
+            </CardTitle>
+            <CheckCircle className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-primary">
+              {completedCount}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalBatches > 0 ? Math.round((completedCount / totalBatches) * 100) : 0}% finished
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
