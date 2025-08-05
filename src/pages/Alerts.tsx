@@ -50,6 +50,58 @@ const mockAlerts = [
     timestamp: '2024-01-17 08:00',
     batchId: null,
   },
+  // Additional alerts to showcase various scenarios across the expanded
+  // batch set. These entries include informational updates, warnings
+  // and critical notifications tied to specific batches or general
+  // inventory issues.
+  {
+    id: 'A-004',
+    type: 'batch',
+    severity: 'info',
+    message: 'Batch B-2024-006 passed QA inspection',
+    timestamp: '2024-02-15 09:00',
+    batchId: 'B-2024-006',
+  },
+  {
+    id: 'A-005',
+    type: 'batch',
+    severity: 'warning',
+    message: 'Batch B-2024-005 experiencing delayed stitching due to machine breakdown',
+    timestamp: '2024-02-12 11:30',
+    batchId: 'B-2024-005',
+  },
+  {
+    id: 'A-006',
+    type: 'batch',
+    severity: 'critical',
+    message: 'Batch B-2024-007 missing materials for hoodies production',
+    timestamp: '2024-02-10 08:00',
+    batchId: 'B-2024-007',
+  },
+  {
+    id: 'A-007',
+    type: 'inventory',
+    severity: 'warning',
+    message: 'Low stock alert: Silk Fabric for B-2024-008',
+    timestamp: '2024-02-14 14:00',
+    batchId: null,
+  },
+  {
+    id: 'A-008',
+    type: 'batch',
+    severity: 'info',
+    message: 'Batch B-2024-009 completed QA and moved to dispatch',
+    timestamp: '2024-02-28 16:45',
+    batchId: 'B-2024-009',
+  },
+  {
+    id: 'A-009',
+    type: 'system',
+    severity: 'info',
+    message: 'New feature: Customisable batch lifecycle available',
+    timestamp: '2024-02-18 08:00',
+    batchId: null,
+  },
 ];
 
 // A minimal mock batch dataset for linking alerts to batch details. Only batches
@@ -65,6 +117,49 @@ const mockBatches = [
     status: 'delayed' as const,
     itemsCount: 800,
     product: 'Pants',
+  },
+  // Additional batch entries referenced by the new alerts above. Only
+  // batches mentioned in alerts need to be included here so that
+  // clicking a batch ID opens the correct modal.
+  {
+    id: 'B-2024-005',
+    currentPhase: 'stitching' as const,
+    startDate: '2024-02-01',
+    estimatedEnd: '2024-02-20',
+    manager: 'Rohan Gupta',
+    status: 'delayed' as const,
+    itemsCount: 350,
+    product: 'Leather Jackets',
+  },
+  {
+    id: 'B-2024-006',
+    currentPhase: 'qa' as const,
+    startDate: '2024-02-05',
+    estimatedEnd: '2024-02-22',
+    manager: 'Priya Singh',
+    status: 'on-time' as const,
+    itemsCount: 600,
+    product: 'Sports Shorts',
+  },
+  {
+    id: 'B-2024-007',
+    currentPhase: 'stitching' as const,
+    startDate: '2024-01-25',
+    estimatedEnd: '2024-02-15',
+    manager: 'Aarav Patel',
+    status: 'delayed' as const,
+    itemsCount: 450,
+    product: 'Hoodies',
+  },
+  {
+    id: 'B-2024-009',
+    currentPhase: 'qa' as const,
+    startDate: '2024-02-12',
+    estimatedEnd: '2024-03-01',
+    manager: 'Vikram Desai',
+    status: 'on-time' as const,
+    itemsCount: 400,
+    product: 'Kids Pajamas',
   },
 ];
 

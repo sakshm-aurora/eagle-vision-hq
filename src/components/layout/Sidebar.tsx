@@ -120,17 +120,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
   };
 
   return (
-    <aside 
+    <aside
       className={cn(
         "bg-card border-r transition-all duration-300 flex flex-col",
         collapsed ? "w-16" : "w-64"
       )}
     >
-      <nav className="flex-1 p-2 space-y-2">
+      {/*
+        Wrap the navigation in an overflow container. When the list of menu
+        items grows beyond the viewport height this allows users to scroll
+        independently within the sidebar. Without this the list would be
+        clipped and inaccessible on smaller displays.
+      */}
+      <nav className="flex-1 p-2 space-y-2 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path, item.exact);
-          
+
           return (
             <NavLink
               key={item.path}
@@ -138,15 +144,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
                 "hover:bg-secondary hover:text-foreground",
-                active 
-                  ? "bg-primary text-primary-foreground shadow-sm" 
+                active
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground"
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
-              {!collapsed && (
-                <span className="truncate">{item.title}</span>
-              )}
+              {!collapsed && <span className="truncate">{item.title}</span>}
             </NavLink>
           );
         })}

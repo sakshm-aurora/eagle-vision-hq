@@ -57,6 +57,70 @@ const mockBatches: Batch[] = [
     itemsCount: 400,
     product: 'Summer Dresses',
   },
+  // New batches for the kanban board. They cover a broader set of products
+  // and statuses while retaining the same high‑level phase values used for
+  // grouping. If your process introduces entirely new phases, update
+  // `phaseToStage` and `stages` accordingly.
+  {
+    id: 'B-2024-005',
+    currentPhase: 'stitching',
+    startDate: '2024-02-01',
+    estimatedEnd: '2024-02-20',
+    manager: 'Rohan Gupta',
+    status: 'delayed',
+    itemsCount: 350,
+    product: 'Leather Jackets',
+  },
+  {
+    id: 'B-2024-006',
+    currentPhase: 'qa',
+    startDate: '2024-02-05',
+    estimatedEnd: '2024-02-22',
+    manager: 'Priya Singh',
+    status: 'on-time',
+    itemsCount: 600,
+    product: 'Sports Shorts',
+  },
+  {
+    id: 'B-2024-007',
+    currentPhase: 'stitching',
+    startDate: '2024-01-25',
+    estimatedEnd: '2024-02-15',
+    manager: 'Aarav Patel',
+    status: 'delayed',
+    itemsCount: 450,
+    product: 'Hoodies',
+  },
+  {
+    id: 'B-2024-008',
+    currentPhase: 'sourcing',
+    startDate: '2024-02-10',
+    estimatedEnd: '2024-02-28',
+    manager: 'Neha Sharma',
+    status: 'on-time',
+    itemsCount: 250,
+    product: 'Silk Scarves',
+  },
+  {
+    id: 'B-2024-009',
+    currentPhase: 'qa',
+    startDate: '2024-02-12',
+    estimatedEnd: '2024-03-01',
+    manager: 'Vikram Desai',
+    status: 'on-time',
+    itemsCount: 400,
+    product: 'Kids Pajamas',
+  },
+  {
+    id: 'B-2024-010',
+    currentPhase: 'dispatch',
+    startDate: '2024-02-15',
+    estimatedEnd: '2024-03-05',
+    manager: 'Rashmi Chawla',
+    status: 'completed',
+    itemsCount: 700,
+    product: 'Formal Pants',
+  },
 ];
 
 // Map each basic phase to a more detailed manufacturing stage for the kanban.

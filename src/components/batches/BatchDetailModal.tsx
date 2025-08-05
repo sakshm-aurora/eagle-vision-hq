@@ -26,6 +26,67 @@ import { cn } from '@/lib/utils';
 import ReserveStockModal from './ReserveStockModal';
 import AttachmentUploader, { Attachment } from '@/components/ui/attachment-uploader';
 
+interface Stage {
+  /**
+   * A unique identifier for the stage. This is used internally for keying
+   * in React lists and does not need to follow any particular format.
+   */
+  id: string;
+  /**
+   * Human‑readable stage name. Typical values include "Design", "Sampling",
+   * "PO Approval", "Sourcing", "Cutting", "Stitching", etc.
+   */
+  name: string;
+  /**
+   * Indicates whether the work happens in‑house, at a vendor or a mixture of
+   * both. This allows the lifecycle to communicate where each step is
+   * executed.
+   */
+  type: 'in-house' | 'vendor' | 'both';
+  /**
+   * Status of the stage. Not all batch definitions provide granular status;
+   * if omitted, the stage is assumed to be not started.
+   */
+  status?: 'not-started' | 'in-progress' | 'completed';
+  /**
+   * Person or team responsible for this step.
+   */
+  assignedTo?: string;
+  /**
+   * Approver for this step.
+   */
+  approver?: string;
+  /**
+   * Planned start date (YYYY-MM-DD).
+   */
+  plannedStart?: string;
+  /**
+   * Planned end date (YYYY-MM-DD).
+   */
+  plannedEnd?: string;
+  /**
+   * Actual start date (if work has begun).
+   */
+  actualStart?: string;
+  /**
+   * Actual end date (if work has completed).
+   */
+  actualEnd?: string;
+  /**
+   * Monetary cost associated with this stage.
+   */
+  cost?: number;
+  /**
+   * Attachments uploaded for this stage. Each attachment is an object with
+   * metadata provided by the AttachmentUploader component.
+   */
+  attachments?: Attachment[];
+  /**
+   * Additional remarks or notes for this stage.
+   */
+  remarks?: string;
+}
+
 interface Batch {
   id: string;
   currentPhase: 'sourcing' | 'stitching' | 'qa' | 'dispatch';
@@ -35,6 +96,13 @@ interface Batch {
   status: 'on-time' | 'delayed' | 'completed';
   itemsCount: number;
   product: string;
+  /**
+   * Optional custom lifecycle for this batch. When provided it overrides
+   * the default mockStages defined within this file. Each stage follows
+   * the Stage interface above. This property is used by the NewBatchModal
+   * when users create a bespoke production flow.
+   */
+  stages?: Stage[];
 }
 
 interface BatchDetailModalProps {
@@ -43,10 +111,18 @@ interface BatchDetailModalProps {
   onClose: () => void;
 }
 
+// Additional inventory entries provide a more realistic bill of materials. Each
+// material includes quantities allocated/consumed and a stock location. In
+// practice, these values would reflect live inventory data.
 const mockMaterials = [
   { name: 'Cotton Fabric', allocated: 250, consumed: 180, remaining: 70, location: 'A-1' },
   { name: 'Polyester Thread', allocated: 50, consumed: 35, remaining: 15, location: 'A-2' },
   { name: 'Buttons', allocated: 500, consumed: 500, remaining: 0, location: 'B-1' },
+  { name: 'Denim Fabric', allocated: 600, consumed: 450, remaining: 150, location: 'C-3' },
+  { name: 'Zippers', allocated: 200, consumed: 120, remaining: 80, location: 'B-4' },
+  { name: 'Leather Pieces', allocated: 400, consumed: 200, remaining: 200, location: 'D-2' },
+  { name: 'Silk Rolls', allocated: 300, consumed: 50, remaining: 250, location: 'C-1' },
+  { name: 'Elastic Bands', allocated: 500, consumed: 300, remaining: 200, location: 'A-5' },
 ];
 
 // Define a mock set of stages representing the full manufacturing chain. Each stage
@@ -54,24 +130,21 @@ const mockMaterials = [
 // costs and attachments. In a real application, this data would come from
 // a backend API and be updated as work progresses. For demonstration
 // purposes we hardcode a few values here.
-const mockStages: {
-  id: string;
-  name: string;
-  status: 'not-started' | 'in-progress' | 'completed';
-  assignedTo?: string;
-  approver?: string;
-  plannedStart: string;
-  plannedEnd: string;
-  actualStart?: string;
-  actualEnd?: string;
-  cost?: number;
-  attachments?: Attachment[];
-  remarks?: string;
-}[] = [
+// Extend the stage schema with a `type` field indicating whether work is
+// performed in‑house, by a vendor or a combination of both. Adding
+// additional stages and metadata paints a fuller picture of a typical
+// manufacturing lifecycle.
+// Default lifecycle used when a batch does not specify its own stages. See
+// the Stage interface above for field descriptions. Each stage here
+// represents a typical manufacturing process with assignments,
+// scheduling and cost information. When a custom lifecycle is passed
+// through the batch prop, these defaults are ignored.
+const mockStages: Stage[] = [
   {
     id: 'design',
     name: 'Design',
     status: 'completed',
+    type: 'in-house',
     assignedTo: 'Design Team',
     approver: 'Creative Manager',
     plannedStart: '2024-01-01',
@@ -86,6 +159,7 @@ const mockStages: {
     id: 'sampling',
     name: 'Sampling',
     status: 'completed',
+    type: 'in-house',
     assignedTo: 'Sampling Unit',
     approver: 'QA Lead',
     plannedStart: '2024-01-03',
@@ -100,6 +174,7 @@ const mockStages: {
     id: 'po-approval',
     name: 'PO Approval',
     status: 'completed',
+    type: 'in-house',
     assignedTo: 'Finance Team',
     approver: 'CFO',
     plannedStart: '2024-01-05',
@@ -114,6 +189,7 @@ const mockStages: {
     id: 'sourcing',
     name: 'Sourcing',
     status: 'in-progress',
+    type: 'vendor',
     assignedTo: 'Acme Fabrics',
     approver: 'Supply Manager',
     plannedStart: '2024-01-06',
@@ -127,6 +203,7 @@ const mockStages: {
     id: 'cutting',
     name: 'Cutting',
     status: 'not-started',
+    type: 'in-house',
     assignedTo: 'Cutting Unit',
     approver: 'Production Manager',
     plannedStart: '2024-01-10',
@@ -138,6 +215,7 @@ const mockStages: {
     id: 'stitching',
     name: 'Stitching',
     status: 'not-started',
+    type: 'both',
     assignedTo: 'Stitching Unit',
     approver: 'Production Manager',
     plannedStart: '2024-01-12',
@@ -149,6 +227,7 @@ const mockStages: {
     id: 'finishing',
     name: 'Finishing',
     status: 'not-started',
+    type: 'in-house',
     assignedTo: 'Finishing Unit',
     approver: 'QA Lead',
     plannedStart: '2024-01-17',
@@ -160,6 +239,7 @@ const mockStages: {
     id: 'qa',
     name: 'QA',
     status: 'not-started',
+    type: 'in-house',
     assignedTo: 'QA Team',
     approver: 'QA Manager',
     plannedStart: '2024-01-19',
@@ -171,6 +251,7 @@ const mockStages: {
     id: 'packing',
     name: 'Packing',
     status: 'not-started',
+    type: 'vendor',
     assignedTo: 'Packing Unit',
     approver: 'Logistics Manager',
     plannedStart: '2024-01-20',
@@ -182,11 +263,36 @@ const mockStages: {
     id: 'shipping',
     name: 'Shipping',
     status: 'not-started',
+    type: 'vendor',
     assignedTo: 'Courier Partner',
     approver: 'Logistics Manager',
     plannedStart: '2024-01-21',
     plannedEnd: '2024-01-22',
     cost: 500,
+    attachments: [],
+  },
+  {
+    id: 'labeling',
+    name: 'Labeling',
+    status: 'not-started',
+    type: 'in-house',
+    assignedTo: 'Labeling Unit',
+    approver: 'QA Lead',
+    plannedStart: '2024-01-18',
+    plannedEnd: '2024-01-20',
+    cost: 150,
+    attachments: [],
+  },
+  {
+    id: 'ironing',
+    name: 'Ironing',
+    status: 'not-started',
+    type: 'vendor',
+    assignedTo: 'Vendor – Ironing Services',
+    approver: 'Production Manager',
+    plannedStart: '2024-01-16',
+    plannedEnd: '2024-01-17',
+    cost: 100,
     attachments: [],
   },
 ];
@@ -212,6 +318,25 @@ const mockChangeLogs = [
     approver: 'Supply Manager',
     approvedDate: '2024-01-10',
   },
+  // Additional change requests illustrating lifecycle customisation and
+  // execution tweaks. These entries have various statuses to show
+  // approval and pending flows.
+  {
+    id: 'CR-003',
+    description: 'Add ironing step after finishing',
+    status: 'approved',
+    proposer: 'Rohan Gupta',
+    date: '2024-01-12',
+    approver: 'Production Manager',
+    approvedDate: '2024-01-13',
+  },
+  {
+    id: 'CR-004',
+    description: 'Change execution type for stitching to vendor',
+    status: 'pending',
+    proposer: 'Priya Singh',
+    date: '2024-01-14',
+  },
 ];
 
 const mockTimeline = [
@@ -219,11 +344,20 @@ const mockTimeline = [
   { timestamp: '2024-01-16 14:30', action: 'Materials sourced', user: 'Mike Rodriguez', phase: 'sourcing' },
   { timestamp: '2024-01-17 08:00', action: 'Production started', user: 'Emma Watson', phase: 'stitching' },
   { timestamp: '2024-01-20 16:00', action: 'Quality check initiated', user: 'James Liu', phase: 'qa' },
+  // Additional timeline entries to cover later phases and other batches. These
+  // examples help illustrate how a timeline grows as work progresses.
+  { timestamp: '2024-01-21 10:00', action: 'Packing started', user: 'Rohan Gupta', phase: 'dispatch' },
+  { timestamp: '2024-01-22 13:00', action: 'Shipped to warehouse', user: 'James Liu', phase: 'dispatch' },
+  { timestamp: '2024-02-01 09:00', action: 'Leather Jackets sourcing started', user: 'Rohan Gupta', phase: 'sourcing' },
+  { timestamp: '2024-02-15 11:00', action: 'Sports Shorts QA passed', user: 'Priya Singh', phase: 'qa' },
 ];
 
 const mockQALogs = [
   { id: 1, timestamp: '2024-01-20 16:00', inspector: 'James Liu', result: 'pass', comments: 'All items meet quality standards', defects: 0 },
   { id: 2, timestamp: '2024-01-20 18:30', inspector: 'Anna Smith', result: 'pass', comments: 'Minor stitching adjustments needed on 5 items', defects: 5 },
+  // Include an additional QA inspection to showcase repeated checks. The
+  // final result indicates a failed inspection with a higher defect count.
+  { id: 3, timestamp: '2024-02-15 14:00', inspector: 'Priya Singh', result: 'fail', comments: 'Seam inconsistency found in 12 units', defects: 12 },
 ];
 
 export const BatchDetailModal: React.FC<BatchDetailModalProps> = ({ batch, open, onClose }) => {
@@ -306,6 +440,15 @@ export const BatchDetailModal: React.FC<BatchDetailModalProps> = ({ batch, open,
     setSelectedMaterial(material);
     setReserveModalOpen(true);
   };
+
+  // Compute the list of stages to display in the timeline tab. If the batch
+  // object includes a `stages` property (as produced by the NewBatchModal)
+  // and that property is an array, use it directly. Otherwise fall back to
+  // the default `mockStages`. Casting via `any` avoids TypeScript errors
+  // when batches are defined in other modules without the `stages` field.
+  const stagesToShow: Stage[] = Array.isArray((batch as any).stages)
+    ? ((batch as any).stages as Stage[])
+    : mockStages;
 
   // Determine simple dependencies based on batch id pattern.
   const computeDependencies = () => {
@@ -461,8 +604,9 @@ export const BatchDetailModal: React.FC<BatchDetailModalProps> = ({ batch, open,
             {/* Timeline tab: show the complete list of stages with assignments, timing and the ability to attach documents per stage. */}
             <TabsContent value="timeline">
               <div className="space-y-4">
-                {mockStages.map((stage) => {
-                  // Determine badge color based on status
+                {stagesToShow.map((stage) => {
+                  // Determine badge colour based on status. If no status is
+                  // provided, treat the stage as not started.
                   let statusClass = 'bg-muted text-muted-foreground';
                   if (stage.status === 'completed') statusClass = 'bg-success text-success-foreground';
                   if (stage.status === 'in-progress') statusClass = 'bg-accent text-accent-foreground';
@@ -473,16 +617,16 @@ export const BatchDetailModal: React.FC<BatchDetailModalProps> = ({ batch, open,
                           <div>
                             <h4 className="font-medium text-base">{stage.name}</h4>
                             <p className="text-xs text-muted-foreground">
-                              Assigned to: {stage.assignedTo || '—'} | Approver: {stage.approver || '—'}
+                              Assigned to: {stage.assignedTo || '—'} | Approver: {stage.approver || '—'} | Execution: {stage.type?.replace('-', ' ') || '—'}
                             </p>
                           </div>
                           <Badge variant="secondary" className={cn('text-xs', statusClass)}>
-                            {stage.status.replace('-', ' ')}
+                            {(stage.status || 'not-started').replace('-', ' ')}
                           </Badge>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                           <div>
-                            <span className="font-medium">Planned:</span> {stage.plannedStart} - {stage.plannedEnd}
+                            <span className="font-medium">Planned:</span> {stage.plannedStart || '—'} - {stage.plannedEnd || '—'}
                           </div>
                           <div>
                             <span className="font-medium">Actual:</span> {stage.actualStart || '—'} - {stage.actualEnd || '—'}

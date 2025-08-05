@@ -60,6 +60,45 @@ const mockAlerts: Alert[] = [
     timestamp: '3 hours ago',
     type: 'overdue',
   },
+  // New alerts reflecting the extended batch dataset. These messages
+  // demonstrate delayed tasks, QA completions and inventory issues for
+  // other product lines.
+  {
+    id: '6',
+    title: 'Delayed Stitching',
+    description: 'Stitching on Leather Jackets (B-2024-005) running 1 day behind schedule',
+    severity: 'medium',
+    timestamp: '10 min ago',
+    type: 'overdue',
+    batchId: 'B-2024-005',
+  },
+  {
+    id: '7',
+    title: 'QA Passed',
+    description: 'Sports Shorts batch (B-2024-006) cleared QA and ready for dispatch',
+    severity: 'low',
+    timestamp: '30 min ago',
+    type: 'completed',
+    batchId: 'B-2024-006',
+  },
+  {
+    id: '8',
+    title: 'Material Shortage',
+    description: 'Silk fabric running low for Silk Scarves batch (B-2024-008)',
+    severity: 'medium',
+    timestamp: '1 hour ago',
+    type: 'shortage',
+    batchId: 'B-2024-008',
+  },
+  {
+    id: '9',
+    title: 'Hoodies Materials Missing',
+    description: 'Material requisition not fulfilled for Hoodies batch (B-2024-007)',
+    severity: 'high',
+    timestamp: '1 hour 30 min ago',
+    type: 'overdue',
+    batchId: 'B-2024-007',
+  },
 ];
 
 const getAlertIcon = (type: string, severity: string) => {

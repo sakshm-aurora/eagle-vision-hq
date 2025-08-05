@@ -50,6 +50,65 @@ const mockBatches: BatchData[] = [
     progress: 95,
     manager: 'James Liu',
   },
+  // Additional batches spanning later dates. These entries extend the
+  // timeline further into February and March, demonstrating how the
+  // Gantt chart handles a broader planning horizon. The high level
+  // `currentPhase` remains within the existing set of phases for
+  // consistency across the dashboard.
+  {
+    id: 'B-2024-005',
+    name: 'Leather Jackets (350 units)',
+    startDate: new Date('2024-02-01'),
+    endDate: new Date('2024-02-20'),
+    currentPhase: 'stitching',
+    progress: 30,
+    manager: 'Rohan Gupta',
+  },
+  {
+    id: 'B-2024-006',
+    name: 'Sports Shorts (600 units)',
+    startDate: new Date('2024-02-05'),
+    endDate: new Date('2024-02-22'),
+    currentPhase: 'qa',
+    progress: 60,
+    manager: 'Priya Singh',
+  },
+  {
+    id: 'B-2024-007',
+    name: 'Hoodies (450 units)',
+    startDate: new Date('2024-01-25'),
+    endDate: new Date('2024-02-15'),
+    currentPhase: 'stitching',
+    progress: 50,
+    manager: 'Aarav Patel',
+  },
+  {
+    id: 'B-2024-008',
+    name: 'Silk Scarves (250 units)',
+    startDate: new Date('2024-02-10'),
+    endDate: new Date('2024-02-28'),
+    currentPhase: 'sourcing',
+    progress: 10,
+    manager: 'Neha Sharma',
+  },
+  {
+    id: 'B-2024-009',
+    name: 'Kids Pajamas (400 units)',
+    startDate: new Date('2024-02-12'),
+    endDate: new Date('2024-03-01'),
+    currentPhase: 'qa',
+    progress: 80,
+    manager: 'Vikram Desai',
+  },
+  {
+    id: 'B-2024-010',
+    name: 'Formal Pants (700 units)',
+    startDate: new Date('2024-02-15'),
+    endDate: new Date('2024-03-05'),
+    currentPhase: 'dispatch',
+    progress: 90,
+    manager: 'Rashmi Chawla',
+  },
 ];
 
 const getPhaseColor = (phase: string) => {
@@ -78,8 +137,11 @@ const formatDate = (date: Date) => {
 
 export const GanttChart = () => {
   const today = new Date();
+  // Expand the chart window to encompass the full range of dates represented
+  // by the mock batches. This ensures tasks that run into February and
+  // March appear on the timeline.
   const chartStart = new Date('2024-01-15');
-  const chartEnd = new Date('2024-01-31');
+  const chartEnd = new Date('2024-03-10');
   const totalDays = Math.ceil((chartEnd.getTime() - chartStart.getTime()) / (1000 * 60 * 60 * 24));
 
   const getTodayPosition = () => {
